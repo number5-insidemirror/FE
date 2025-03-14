@@ -1,0 +1,208 @@
+/* 전체 화면 스타일 */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(0, 0, 0); /* 배경 흰색 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%; /* 고정 가로 크기 */
+    height: 100vh; /* 세로 크기는 브라우저 높이에 맞춤 */
+    background-color: black; /* 내부 앱 배경은 검은색 */
+    color: white;
+    font-family: Arial, sans-serif;
+    box-shadow: 0 0 2vh rgba(0, 0, 0, 0.5); /* 약간의 그림자 효과 */
+}
+
+/* 중앙 시간, 날씨, 인사말 */
+.time-weather {
+    text-align: center;
+    margin-top: 2vh;
+}
+
+.time {
+    font-size: 5vh;
+    font-weight: bold;
+}
+
+.date {
+    margin: 1vh 0;
+    font-size: 2vh;
+}
+
+.weather {
+    margin: 1vh 0;
+    font-size: 2vh;
+}
+
+.greeting {
+    margin-top: 2vh;
+    font-size: 2vh;
+}
+
+.mic-icon {
+    font-size: 2vh;
+    margin-top: 1vh;
+}
+
+/* 하단 섹션 */
+.bottom-section {
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    margin-bottom: 2vh;
+}
+
+.left-section {
+    display: flex;
+    flex-direction: column; /* 위아래로 쌓이도록 설정 */
+    flex: 0 0 30%; /* 고정 너비 비율 */
+    margin-left: 2vw; /* 오른쪽 여백 */
+    justify-content: flex-end; /* 아래쪽으로 정렬 */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    align-self: flex-start;
+}
+
+.info-box {
+    /* padding: 2vh; */
+    border: 0.2vh solid white;
+    text-align: center;
+    border-radius: 2vh;
+    margin-bottom: 1vh; /* 일정과 간격 추가 */
+    /* margin-left: 2vw; */
+    margin-right: 200px;
+}
+
+.info-box img {
+    width: 20vh;
+    opacity: 0.8;
+}
+
+.schedule {
+    padding: 2vh;
+    border: 0.2vh solid white;
+    border-radius: 2vh;
+    text-align: left;
+    /* margin-left: 2vw; */
+    margin-right: 200px;
+}
+
+.schedule-title {
+    font-size: 1.5vh;
+    font-weight: bold;
+    margin-bottom: 1vh;
+}
+
+.schedule-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.3vh;
+    margin-bottom: 0.8vh;
+}
+
+/* Now playing */
+/* .now-playing {
+  padding: 2vh;
+  border: 0.2vh solid white;
+  text-align: center;
+  border-radius: 2vh;
+
+  margin-left: 150px;
+  width: 30%;
+  height: 300px;
+  bottom: 0;
+  margin-top: 350px;
+} */
+
+/* Now playing */
+.now-playing {
+    padding: 2vh;
+    border: 0.2vh solid white;
+    text-align: center;
+    border-radius: 2vh;
+    margin-right: 2vw;
+    width: 30%;
+    color: white;
+    box-shadow: 0 0 1vh rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+}
+
+.now-playing:active,
+.now-playing.expanded {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 30%;
+    z-index: 9999;
+    box-shadow: 0 0 2vh rgba(0, 0, 0, 0.8);
+    animation: fadeOut 5s forwards;
+}
+
+.now-playing span {
+    font-size: 1.5vh;
+    font-weight: bold;
+    text-shadow: 0.1vh 0.1vh 0.2vh rgba(0, 0, 0, 0.7);
+}
+
+.video-title {
+    font-size: 1.5vh;
+    margin-top: 1vh;
+    font-weight: bold;
+    color: white;
+}
+
+.player-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1vw;
+    margin-top: 1vh;
+}
+
+.player-controls button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 2vh;
+    width: 2vh;
+    border: 0;
+    background: inherit;
+    cursor: pointer;
+    color: white;
+}
+
+.player-controls > button.emphasised {
+    background: red;
+    color: white;
+    border-radius: 50%;
+}
+
+.player-controls .volume-control {
+    margin-left: 1vw;
+}
+
+.player-controls .volume-control svg {
+    margin-right: 0.5vw;
+}

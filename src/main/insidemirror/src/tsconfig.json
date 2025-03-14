@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "outDir": "lib",
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["es2015", "dom"],
+    "moduleResolution": "node",
+    "jsx": "preserve",
+    "sourceMap": true,
+    "declaration": true,
+    "esModuleInterop": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true,
+  },
+  "typings": "src/index.d.ts",
+  "include": ["src/**/*.ts", "src/**/*.tsx"], // TypeScript 소스 포함
+  "exclude": ["demo", "node_modules"]
+}
