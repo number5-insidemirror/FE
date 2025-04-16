@@ -1,0 +1,59 @@
+.weather-widget {
+    width: 25vw;
+    margin-top: 2vh;
+    padding: 1.5vh;
+    border-radius: 2vh;
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 0.1vh solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
+    color: white;
+    box-sizing: border-box;
+    cursor: pointer;
+    position: relative;
+}
+
+.weather-summary {
+    text-align: center;
+    font-size: 1.4vh;
+}
+
+.weather-status {
+    font-weight: bold;
+    margin-bottom: 0.5vh;
+}
+
+.weather-temp {
+    font-size: 1.2vh;
+    color: #ddd;
+}
+
+.weather-detail-bubble {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 1vh;
+    padding: 1vh;
+    width: 90%;
+    background-color: rgba(0, 0, 0, 0.75);
+    border-radius: 1.5vh;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 1vh rgba(0, 0, 0, 0.4);
+    z-index: 100;
+}
+
+.hour-block {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.2vh;
+    margin-bottom: 0.5vh;
+}
+
+.hour-temp {
+    font-weight: bold;
+}
+
+.clothing {
+    font-size: 1.1vh;
+    color: #ccc;
+}

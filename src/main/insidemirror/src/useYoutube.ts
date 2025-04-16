@@ -121,17 +121,21 @@ export const useYoutube = ({
   }, [id, type]);
 
   const setState = ({
-    playerInfo: { videoData, ...playerInfo },
-  }: YT.Player) => {
+                      playerInfo: { videoData, ...playerInfo },
+                    }: YT.Player) => {
+    const videoId = videoData.video_id;
+
     setPlayerDetails({
-      id: videoData.video_id,
+      id: videoId,
       state: playerInfo.playerState,
       title: videoData.title,
+      thumbnail: videoId ? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg` : "",
       duration: playerInfo.duration,
       volume: playerInfo.volume,
       currentTime: playerInfo.currentTime,
     });
   };
+
 
   const proxy = (functionName: keyof Actions, args: unknown[] = []) => {
     if (typeof player?.[functionName] === "function") {
