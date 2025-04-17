@@ -18,7 +18,7 @@ function App() {
   const [date, setDate] = useState("");
   const [currentName, setCurrentName] = useState("Unknown");
   const [remainingTime, setRemainingTime] = useState(5);
-
+  const name = "yunyeong";
   const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ko-KR";
@@ -119,7 +119,7 @@ function App() {
         <MouseFollower/>
         <div className="bottom-section">
           <div className="left-section">
-            <h2>Hello, {currentName} !</h2>
+            <h2>Hello, {name} !</h2>
             <Hello />
             <NewsTicker />
             <BusInfo/>
