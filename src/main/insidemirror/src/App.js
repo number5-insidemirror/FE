@@ -18,7 +18,7 @@ function App() {
   const [date, setDate] = useState("");
   const [currentName, setCurrentName] = useState("Unknown");
   const [remainingTime, setRemainingTime] = useState(5);
-  const name = "yunyeong";
+  // const name = "yunyeong";
   const speak = (text) => {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ko-KR";
