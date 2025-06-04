@@ -88,7 +88,7 @@ function Archive() {
     <div className="archive-container">
       <h2>My Archive</h2>
       <section className="archive-section">
-        <h3>📷 사진 업로드</h3>
+        <h3>사진 업로드</h3>
 
         {uploadedImages.length > 0 && (
           <div className="carousel-wrapper">
