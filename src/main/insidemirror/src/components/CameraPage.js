@@ -6,6 +6,10 @@ import * as faceMesh from "@mediapipe/face_mesh";
 import { Camera } from "@mediapipe/camera_utils";
 import HeartFilter from "../img/heartFilter.png";
 import GlassesFilter from "../img/glassMando.png";
+import FeelGoodFilter from "../img/feelGood.jpg";
+import luckeyFilter from "../img/luckey.png";
+import HistoryFilter from "../img/history.png";
+import SinnandaFilter from "../img/sinnanda.png";
 import CameraIcon from "../img/camera2.png";
 import * as hands from "@mediapipe/hands";
 
@@ -14,11 +18,13 @@ function CameraPage() {
   const canvasRef = useRef(null);
   const heartRef = useRef(null);
   const glassesRef = useRef(null);
+  const luckeyRef = useRef(null);
+  const historyRef = useRef(null);
+  const sinnandaRef = useRef(null);
   const captureButtonRef = useRef(null);
 
   const [savedImages, setSavedImages] = useState([]);
-  const [selectedFilter, setSelectedFilter] = useState("heart");
-  const [distortType, setDistortType] = useState(null);
+  const [selectedFilter, setSelectedFilter] = useState(0);
   const [lastCapture, setLastCapture] = useState(0);
   const [captureTimeout, setCaptureTimeout] = useState(null);
   const [lastGestureTime, setLastGestureTime] = useState(0);
@@ -41,6 +47,7 @@ function CameraPage() {
   useEffect(() => {
     const canvasElement = canvasRef.current;
     const canvasCtx = canvasElement.getContext("2d");
+    canvasCtx.drawImage(videoRef.current, 0, 0, canvasElement.width, canvasElement.height); // 반전 없음!
 
     const faceMeshInstance = new faceMesh.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`,
@@ -63,10 +70,10 @@ function CameraPage() {
       canvasCtx.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
 
       const landmarks = results.multiFaceLandmarks[0];
-      const forehead = landmarks[10]; //하트
-      const eyeCenter = landmarks[234]; // 안경만두
+      const forehead = landmarks[10];
+      const jaw = landmarks[152];
 
-      //하트
+      //하트 이모지
       if (selectedFilter === "heart" && heartRef.current?.complete) {
         const imageWidth = 200;
         const imageHeight = 120;
@@ -75,18 +82,38 @@ function CameraPage() {
         canvasCtx.drawImage(heartRef.current, x, y, imageWidth, imageHeight);
       }
 
-      //안경만두
+      //안경 만두
       if (selectedFilter === "glasses" && glassesRef.current?.complete) {
-        const imageWidth = 100;
-        const imageHeight = 100;
-        const x = eyeCenter.x * canvasElement.width - imageWidth / 2;
-        const y = eyeCenter.y * canvasElement.height - imageHeight / 2;
+        const imageWidth = 200;
+        const imageHeight = 200;
+        // 턱 끝 기준, y는 어깨 근처로 내리고 x는 왼쪽으로 10% 이동
+        const x = jaw.x * canvasElement.width - imageWidth / 2 - imageWidth * 0.9;
+        const y = jaw.y * canvasElement.height - imageHeight / 2 + canvasElement.height * 0.12;
         canvasCtx.drawImage(glassesRef.current, x, y, imageWidth, imageHeight);
       }
-
-      // 왜곡 효과 적용
-      if (distortType) {
-        applyDistortion(canvasCtx, canvasElement, distortType);
+      //럭키한 하루
+      if (selectedFilter === "luckey" && luckeyRef.current?.complete) {
+        const imageWidth = 200;
+        const imageHeight = 120;
+        const x = forehead.x * canvasElement.width - imageWidth / 2;
+        const y = forehead.y * canvasElement.height - imageHeight * 1.5;
+        canvasCtx.drawImage(luckeyRef.current, x, y, imageWidth, imageHeight);
+      }
+      //추억쌓기
+      if (selectedFilter === "history" && luckeyRef.current?.complete) {
+        const imageWidth = 200;
+        const imageHeight = 120;
+        const x = forehead.x * canvasElement.width - imageWidth / 2;
+        const y = forehead.y * canvasElement.height - imageHeight * 1.5;
+        canvasCtx.drawImage(historyRef.current, x, y, imageWidth, imageHeight);
+      }
+      //신난다
+      if (selectedFilter === "sinnanda" && luckeyRef.current?.complete) {
+        const imageWidth = 200;
+        const imageHeight = 120;
+        const x = forehead.x * canvasElement.width - imageWidth / 2;
+        const y = forehead.y * canvasElement.height - imageHeight * 1.5;
+        canvasCtx.drawImage(sinnandaRef.current, x, y, imageWidth, imageHeight);
       }
     });
 
@@ -95,7 +122,7 @@ function CameraPage() {
         onFrame: async () => {
           const frame = videoRef.current;
           await faceMeshInstance.send({ image: frame });
-          await handDetector.send({ image: frame }); // ✅ 손도 동시에 분석
+          await handDetector.send({ image: frame }); // 손도 동시에 분석
         },
         width: 640,
         height: 480,
@@ -242,64 +269,6 @@ function CameraPage() {
     return false;
   };
 
-  // canvasCtx: CanvasRenderingContext2D, canvasElement: HTMLCanvasElement
-  function applyDistortion(canvasCtx, canvasElement, type) {
-    // 원본 이미지 데이터 복사
-    const src = canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height);
-    const dst = canvasCtx.createImageData(src);
-    const w = canvasElement.width,
-      h = canvasElement.height;
-    const cx = w / 2,
-      cy = h / 2;
-    const maxR = Math.min(w, h) / 2;
-
-    for (let y = 0; y < h; y++) {
-      for (let x = 0; x < w; x++) {
-        // 중심 기준 좌표
-        const dx = x - cx;
-        const dy = y - cy;
-        const r = Math.sqrt(dx * dx + dy * dy);
-        const theta = Math.atan2(dy, dx);
-
-        let nr = r;
-        if (type === "bulge") {
-          // 볼록: 중심에 가까울수록 더 팽창
-          nr = r * (1 - 0.5 * Math.cos((Math.PI * r) / maxR));
-        } else if (type === "pinch") {
-          // 오목: 중심에 가까울수록 더 압축
-          nr = r * (1 + 0.5 * Math.cos((Math.PI * r) / maxR));
-        } else if (type === "swirl") {
-          // 소용돌이: 각도를 비틀기
-          const angle = ((Math.PI * (maxR - r)) / maxR) * 0.7;
-          const nx = Math.round(cx + r * Math.cos(theta + angle));
-          const ny = Math.round(cy + r * Math.sin(theta + angle));
-          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-            const si = (ny * w + nx) * 4;
-            const di = (y * w + x) * 4;
-            dst.data[di] = src.data[si];
-            dst.data[di + 1] = src.data[si + 1];
-            dst.data[di + 2] = src.data[si + 2];
-            dst.data[di + 3] = src.data[si + 3];
-          }
-          continue;
-        }
-
-        // 볼록/오목 변환 좌표
-        const nx = Math.round(cx + nr * Math.cos(theta));
-        const ny = Math.round(cy + nr * Math.sin(theta));
-        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-          const si = (ny * w + nx) * 4;
-          const di = (y * w + x) * 4;
-          dst.data[di] = src.data[si];
-          dst.data[di + 1] = src.data[si + 1];
-          dst.data[di + 2] = src.data[si + 2];
-          dst.data[di + 3] = src.data[si + 3];
-        }
-      }
-    }
-    canvasCtx.putImageData(dst, 0, 0);
-  }
-
   return (
     <>
       <div className="camera">
@@ -328,15 +297,27 @@ function CameraPage() {
         {/* 필터 이미지들 */}
         <img ref={heartRef} src={HeartFilter} alt="Heart Filter" style={{ display: "none" }} />
         <img ref={glassesRef} src={GlassesFilter} alt="Glasses Filter" style={{ display: "none" }} />
+        <img ref={luckeyRef} src={luckeyFilter} alt="luckey Filter" style={{ display: "none" }} />
+        <img ref={historyRef} src={HistoryFilter} alt="history Filter" style={{ display: "none" }} />
+        <img ref={sinnandaRef} src={SinnandaFilter} alt="sinanada Filter" style={{ display: "none" }} />
 
         {/* 필터 선택 버튼 */}
         <div className="filter-buttons">
-          <button onClick={() => setSelectedFilter("heart")}>❤️ 하트</button>
-          <button onClick={() => setSelectedFilter("glasses")}>🕶️ 안경만두</button>
-          <button onClick={() => setDistortType("bulge")}>🔵 볼록</button>
-          <button onClick={() => setDistortType("pinch")}>⚫ 오목</button>
-          <button onClick={() => setDistortType("swirl")}>🌀 소용돌이</button>
-          <button onClick={() => setDistortType(null)}>🚫 왜곡 끄기</button>
+          <button onClick={() => setSelectedFilter("heart")}>
+            <img src={HeartFilter} />
+          </button>
+          <button onClick={() => setSelectedFilter("glasses")}>
+            <img src={GlassesFilter} />
+          </button>
+          <button onClick={() => setSelectedFilter("luckey")}>
+            <img src={luckeyFilter} />
+          </button>
+          <button onClick={() => setSelectedFilter("history")}>
+            <img src={HistoryFilter} />
+          </button>
+          <button onClick={() => setSelectedFilter("sinnanda")}>
+            <img src={SinnandaFilter} />
+          </button>
         </div>
       </div>
 
