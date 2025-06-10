@@ -18,6 +18,7 @@ function CameraPage() {
 
   const [savedImages, setSavedImages] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("heart");
+  const [distortType, setDistortType] = useState(null);
   const [lastCapture, setLastCapture] = useState(0);
   const [captureTimeout, setCaptureTimeout] = useState(null);
   const [lastGestureTime, setLastGestureTime] = useState(0);
@@ -62,9 +63,10 @@ function CameraPage() {
       canvasCtx.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
 
       const landmarks = results.multiFaceLandmarks[0];
-      const forehead = landmarks[10];
-      const eyeCenter = landmarks[234]; // 눈 중심 근처
+      const forehead = landmarks[10]; //하트
+      const eyeCenter = landmarks[234]; // 안경만두
 
+      //하트
       if (selectedFilter === "heart" && heartRef.current?.complete) {
         const imageWidth = 200;
         const imageHeight = 120;
@@ -73,12 +75,18 @@ function CameraPage() {
         canvasCtx.drawImage(heartRef.current, x, y, imageWidth, imageHeight);
       }
 
+      //안경만두
       if (selectedFilter === "glasses" && glassesRef.current?.complete) {
         const imageWidth = 100;
         const imageHeight = 100;
         const x = eyeCenter.x * canvasElement.width - imageWidth / 2;
         const y = eyeCenter.y * canvasElement.height - imageHeight / 2;
         canvasCtx.drawImage(glassesRef.current, x, y, imageWidth, imageHeight);
+      }
+
+      // 왜곡 효과 적용
+      if (distortType) {
+        applyDistortion(canvasCtx, canvasElement, distortType);
       }
     });
 
@@ -234,6 +242,64 @@ function CameraPage() {
     return false;
   };
 
+  // canvasCtx: CanvasRenderingContext2D, canvasElement: HTMLCanvasElement
+  function applyDistortion(canvasCtx, canvasElement, type) {
+    // 원본 이미지 데이터 복사
+    const src = canvasCtx.getImageData(0, 0, canvasElement.width, canvasElement.height);
+    const dst = canvasCtx.createImageData(src);
+    const w = canvasElement.width,
+      h = canvasElement.height;
+    const cx = w / 2,
+      cy = h / 2;
+    const maxR = Math.min(w, h) / 2;
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        // 중심 기준 좌표
+        const dx = x - cx;
+        const dy = y - cy;
+        const r = Math.sqrt(dx * dx + dy * dy);
+        const theta = Math.atan2(dy, dx);
+
+        let nr = r;
+        if (type === "bulge") {
+          // 볼록: 중심에 가까울수록 더 팽창
+          nr = r * (1 - 0.5 * Math.cos((Math.PI * r) / maxR));
+        } else if (type === "pinch") {
+          // 오목: 중심에 가까울수록 더 압축
+          nr = r * (1 + 0.5 * Math.cos((Math.PI * r) / maxR));
+        } else if (type === "swirl") {
+          // 소용돌이: 각도를 비틀기
+          const angle = ((Math.PI * (maxR - r)) / maxR) * 0.7;
+          const nx = Math.round(cx + r * Math.cos(theta + angle));
+          const ny = Math.round(cy + r * Math.sin(theta + angle));
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+            const si = (ny * w + nx) * 4;
+            const di = (y * w + x) * 4;
+            dst.data[di] = src.data[si];
+            dst.data[di + 1] = src.data[si + 1];
+            dst.data[di + 2] = src.data[si + 2];
+            dst.data[di + 3] = src.data[si + 3];
+          }
+          continue;
+        }
+
+        // 볼록/오목 변환 좌표
+        const nx = Math.round(cx + nr * Math.cos(theta));
+        const ny = Math.round(cy + nr * Math.sin(theta));
+        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+          const si = (ny * w + nx) * 4;
+          const di = (y * w + x) * 4;
+          dst.data[di] = src.data[si];
+          dst.data[di + 1] = src.data[si + 1];
+          dst.data[di + 2] = src.data[si + 2];
+          dst.data[di + 3] = src.data[si + 3];
+        }
+      }
+    }
+    canvasCtx.putImageData(dst, 0, 0);
+  }
+
   return (
     <>
       <div className="camera">
@@ -267,6 +333,10 @@ function CameraPage() {
         <div className="filter-buttons">
           <button onClick={() => setSelectedFilter("heart")}>❤️ 하트</button>
           <button onClick={() => setSelectedFilter("glasses")}>🕶️ 안경만두</button>
+          <button onClick={() => setDistortType("bulge")}>🔵 볼록</button>
+          <button onClick={() => setDistortType("pinch")}>⚫ 오목</button>
+          <button onClick={() => setDistortType("swirl")}>🌀 소용돌이</button>
+          <button onClick={() => setDistortType(null)}>🚫 왜곡 끄기</button>
         </div>
       </div>
 
