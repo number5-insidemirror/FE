@@ -5,7 +5,7 @@ import { PlayerState } from "../types.ts";
 import "../styles/MusicPlayer.css";
 import SoundWave from "../img/sound-wave.png";
 
-// ▶ 재생목록 여러 개를 상수로 보관 (원하는 만큼 추가)
+// 재생목록 여러 개를 상수로 보관 (원하는 만큼 추가)
 const TRACKS = ["Yqscc_48tPY", "msGuqelopMA", "2o1zdX72400"];
 
 export default function MusicPlayer() {
